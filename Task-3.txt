@@ -1,0 +1,124 @@
+Lookup and Project:
+Use $lookup to join the employees collection with the projects collection based on the employee_id. Project only the relevant fields from the projects collection.
+db.employees.aggregate(
+  [
+    {
+      $lookup: {
+        from: 'projects',
+        localField: '_id',
+        foreignField: 'employee_id',
+        as: 'projects'
+      }
+    }
+  ],
+  { maxTimeMS: 60000, allowDiskUse: true }
+)
+
+Group and Sum:
+Group the result from Task 1 by position and calculate the total number of projects each position is involved in using $group and $sum. Project the position and total projects.
+db.employees.aggregate([
+  {
+    $lookup: {
+      from: "projects",
+      localField: "_id",
+      foreignField: "employee_id",
+      as: "projects"
+    }
+  },
+  {
+    $group: {
+      _id: "$position",
+      totalProjects: { $sum: { $size: "$projects" } }
+    }
+  },
+  {
+    $project: {
+      position: "$_id",
+      totalProjects: 1,
+      _id: 0
+    }
+  }
+]);
+
+AddFields and Map:
+Use $addFields to create a new field named project_names in the result from Task 2. This field should be an array containing the names of all projects for each position. You can use $map to iterate over the projects and extract their names.
+db.employees.aggregate([
+  {
+    $lookup: {
+      from: "projects",
+      localField: "_id",
+      foreignField: "employee_id",
+      as: "projects"
+    }
+  },
+  {
+    $group: {
+      _id: "$position",
+      totalProjects: { $sum: { $size: "$projects" } },
+      projects: { $push: "$projects.project_name" }
+    }
+  },
+  {
+    $addFields: {
+      project_names: {
+        $map: {
+          input: "$projects",
+          as: "project",
+          in: "$$project"
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      position: "$_id",
+      totalProjects: 1,
+      project_names: 1,
+      _id: 0
+    }
+  }
+]);
+
+Reduce Operation:
+Implement a $reduce operation to calculate the total annual income of all employees across positions from the financial_details collection. Project the result.
+db.financial_details.aggregate([
+  {
+    $group: {
+      _id: null,
+      totalAnnualIncome: {
+        $sum: "$annual_income"
+      }
+    }
+  }
+]);
+
+Filter and Project:
+Create a query to filter out employees with annual expenses greater than a specified value from the financial_details collection. Project only the necessary fields.
+db.financial_details.aggregate([
+  {
+    $match: {
+      expenses: { $lte: specified_value }
+    }
+  },
+  {
+    $lookup: {
+      from: "employees",
+      localField: "employee_id",
+      foreignField: "_id",
+      as: "employee"
+    }
+  },
+  {
+    $unwind: "$employee"
+  },
+  {
+    $project: {
+      "employee.name": 1,
+      "employee.position": 1,
+      "employee.age": 1,
+      "salary": 1,
+      "annual_income": 1,
+      "expenses": 1
+    }
+  }
+]);
