@@ -1,0 +1,62 @@
+// Task 1: CRUD Operations
+// Create Database and Collections:
+// Create a new MongoDB database named company.
+// Within the company database, create three collections: employees, financial_details, and projects.
+use company;
+
+db.createCollection("employees");
+db.createCollection("financial_details");
+db.createCollection("projects");
+
+
+// Insert Data:
+// Insert at least 5 documents into the employees collection, financial_details collection, and projects collection. Each collection should represent employees, financial details, and projects respectively.
+// employees documents should include fields such as name, age, position, and other employee-related details.
+// financial_details documents should include fields such as employee_id (reference to an employee), salary, annual_income, and expenses.
+// projects documents should include fields such as project_name, employee_id (referring to an employee), and status.
+// Insert data into employees collection
+db.employees.insertMany([
+  { name: "John Doe", age: 35, position: "Manager", department: "Sales" },
+  { name: "Jane Smith", age: 28, position: "Developer", department: "IT" },
+  { name: "Michael Johnson", age: 40, position: "Analyst", department: "Finance" },
+  { name: "Emily Brown", age: 32, position: "Designer", department: "Marketing" },
+  { name: "David Wilson", age: 45, position: "Engineer", department: "Engineering" }
+]);
+
+// Insert data into financial_details collection
+db.financial_details.insertMany([
+  { employee_id: ObjectId("61f3c2b38f9a2e6454c03f6a"), salary: 80000, annual_income: 100000, expenses: 20000 },
+  { employee_id: ObjectId("61f3c2b38f9a2e6454c03f6b"), salary: 70000, annual_income: 90000, expenses: 15000 },
+  { employee_id: ObjectId("61f3c2b38f9a2e6454c03f6c"), salary: 90000, annual_income: 110000, expenses: 25000 },
+  { employee_id: ObjectId("61f3c2b38f9a2e6454c03f6d"), salary: 75000, annual_income: 95000, expenses: 20000 },
+  { employee_id: ObjectId("61f3c2b38f9a2e6454c03f6e"), salary: 85000, annual_income: 105000, expenses: 22000 }
+]);
+
+// Insert data into projects collection
+db.projects.insertMany([
+  { project_name: "Website Redesign", employee_id: ObjectId("61f3c2b38f9a2e6454c03f6a"), status: "In Progress" },
+  { project_name: "Product Launch", employee_id: ObjectId("61f3c2b38f9a2e6454c03f6b"), status: "Completed" },
+  { project_name: "Marketing Campaign", employee_id: ObjectId("61f3c2b38f9a2e6454c03f6c"), status: "Pending" },
+  { project_name: "New Feature Development", employee_id: ObjectId("61f3c2b38f9a2e6454c03f6d"), status: "In Progress" },
+  { project_name: "Data Analysis", employee_id: ObjectId("61f3c2b38f9a2e6454c03f6e"), status: "Completed" }
+]);
+
+
+// Read Operation:
+// Write a query to retrieve all employees who are above 30 years old from the employees collection.
+db.employees.find({ age: { $gt: 30 } });
+
+// Update Operation:
+// Choose an employee and update their position to a higher role in the employees collection.
+db.employees.updateOne(
+  { name: "John Doe" },
+  { $set: { position: "Senior Manager" } }
+);
+
+
+
+// Delete Operation:
+// Delete a project from the projects collection based on the project name.
+// Delete a project based on the project name
+db.projects.deleteOne({ project_name: "Marketing Campaign" });
+
